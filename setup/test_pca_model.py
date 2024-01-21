@@ -36,6 +36,7 @@ class MyTestCasePCAModel(unittest.TestCase):
         cosine_sim_short_same = F.cosine_similarity(reduced_v_text, reduced_v_r)
         cosine_sim_short_diff = F.cosine_similarity(reduced_v_text, reduced_v_n)
 
+        print(f"shape of short: {reduced_v_text.shape}")
         print(f"cosine_sim_long_same: {cosine_sim_long_same}, cosine_sim_long_diff: {cosine_sim_long_diff}")
         print(f"cosine_sim_short_same: {cosine_sim_short_same}, cosine_sim_short_diff: {cosine_sim_short_diff}")
 

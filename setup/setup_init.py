@@ -18,13 +18,20 @@ embedding_list = []
 # print(f"len: {len(data)}")
 for index, (i, each) in enumerate(data.items()):
     each_text = each['data']
-    each_id = text_to_md5_hash(each_text)
     vectorized_text = get_passage_vector(each_text)
     embedding_list.append(vectorized_text)
-    print(f"finished : {index}/{len(data)}")
+    print(f"finished text_generating : {index}/{len(data)}")
 
 all_embeddings = torch.cat(embedding_list, dim=0)
 reducer = get_dim_reducer(to_size=128, bert_embeddings=all_embeddings)
+
+for index, (i, each) in enumerate(data.items()):
+    each_text = each['data']
+    each_id = text_to_md5_hash(each_text)
+    vector = embedding_list[index]
+    reduced_vector = torch.from_numpy(reducer.transform(vector))
+    torch.save(reduced_vector, f'../data/{each_id}_reduced.pt')
+    print(f"finished storing : {index}/{len(data)}")
 
 with open('pca_reducer_128.pkl', 'wb') as file:
     pickle.dump(reducer, file)
