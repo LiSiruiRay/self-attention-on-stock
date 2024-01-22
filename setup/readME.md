@@ -4,3 +4,4 @@
 1. Get the data with next integer times of 5 min time stamp
 2. see how many of is not happened during with market data (more than half), since I also input the delay time, this is OK
 3. clean the ones with no market data (too new)
+4. Clean the news data with too new time stamp, since I was training the next 3 hours, the latest allowed data would be `"2024-01-19 16:55:00"`

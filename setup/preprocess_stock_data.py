@@ -44,7 +44,7 @@ def get_key_in_stock_data(dt: datetime) -> str:
 with open('../data/raw_stock_data.json', 'r') as file:
     stock_data = json.load(file)
 
-with open('../data/news_data.json', 'r') as file:
+with open('../data/news_data_valid_time.json', 'r') as file:
     news_data = json.load(file)
 
 text_id_to_stock_data_key = dict()
@@ -67,10 +67,13 @@ for index, (i, each) in enumerate(news_data.items()):
         each_id = f"{each_id}_nonstockdata"
         # print(f"each_id: {each_text}----\n\n {each}")
         continue
+    if "2024-01-19 18" in split_key[0] or "2024-01-19 19" in split_key[0]:
+        print(f"too late ones: {each}")
+        continue
     text_id_to_stock_data_key[each_id] = split_key[0]
     print(f"finished filtering : {index}/{len(news_data)}")
 
-with open('../data/news_to_stock_no_market_info.json', 'w') as file:
+with open('../data/news_to_stock_valid_time.json', 'w') as file:
     json.dump(text_id_to_stock_data_key, file, indent=4)
 
 
