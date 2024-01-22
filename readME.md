@@ -1,3 +1,13 @@
+
+# Input data
+1. feature of passage: passage vector
+2. feature of time in relate to news: 
+   1. absolute time (in relative to 2023 July 1st)
+   2. time in a day
+   3. time since market started
+3. How is the stock data in relate to the news: how long after the news happened are we detecting
+   1. For example: a news happened at 11:59pm, yet stock start at 9, that is 9 hours and 1 min after news happened
+
 # Target Tag
 A vector of fluctuation (percentage) of 
 
