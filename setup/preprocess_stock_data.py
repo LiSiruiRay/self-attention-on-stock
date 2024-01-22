@@ -58,18 +58,19 @@ for index, (i, each) in enumerate(news_data.items()):
     else:
         format_str = "%Y-%m-%dT%H:%M:%S%z"
     each_date = datetime.strptime(each_date_str, format_str)
-    print(f"processing: {each}")
     stock_data_key = get_key_in_stock_data(dt=each_date)
     split_key = stock_data_key.split('_')
-    if "nonmarket" in split_key:
-        each_id = f"{each_id}_nonmarket"
+    # if "nonmarket" in split_key:
+    #     each_id = f"{each_id}_nonmarket"
 
     if "no stock data" == split_key[0]:
         each_id = f"{each_id}_nonstockdata"
+        # print(f"each_id: {each_text}----\n\n {each}")
+        continue
     text_id_to_stock_data_key[each_id] = split_key[0]
     print(f"finished filtering : {index}/{len(news_data)}")
 
-with open('../data/news_to_stock.json', 'w') as file:
+with open('../data/news_to_stock_no_market_info.json', 'w') as file:
     json.dump(text_id_to_stock_data_key, file, indent=4)
 
 
