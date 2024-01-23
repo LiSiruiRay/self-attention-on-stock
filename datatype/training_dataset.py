@@ -15,11 +15,12 @@ import pytz
 from util.common import text_to_md5_hash, get_proje_root_path
 
 
-class myDataset(Dataset):
+class Mydataset(Dataset):
     sorted_news_data: NSData
     zero_time_stamp: datetime  # when is the base line
     news_to_stock: dict
     news_to_target_tag_data: dict
+    use_reduced_passage_vec: bool
 
     @staticmethod
     def get_news_to_stock(file_name: str = "news_to_stock_valid_time.json"):
@@ -37,28 +38,39 @@ class myDataset(Dataset):
             news_to_target_tag_data = json.load(file)
         return news_to_target_tag_data
 
+    def __len__(self):
+        return len(self.sorted_news_data)
+
     def __init__(self,
                  zero_time_stamp: datetime =
                  datetime(2023, 5, 1, 0, 0, 0, 0)
-                 .replace(tzinfo=pytz.utc)):
+                 .replace(tzinfo=pytz.utc),
+                 use_reduced_passage_vec = True):
+        """
+        Only initialization needed
+        :param zero_time_stamp:
+        """
         self.sorted_news_data = NSData()
         self.sorted_news_data.load_data()
         self.zero_time_stamp = zero_time_stamp
-        self.news_to_stock = myDataset.get_news_to_stock()
+        self.news_to_stock = Mydataset.get_news_to_stock()
         self.news_to_target_tag_data = self.load_news_to_target_tag_data()
+        self.use_reduced_passage_vec = use_reduced_passage_vec
 
     def __getitem__(self, index: int):
         news_data = self.sorted_news_data[index]
         text_data = news_data['data']
         text_id = text_to_md5_hash(text_data)
-        text_id = f"{text_id}_reduced.pt"
-        passage_vec = torch.load(text_id)
+        text_id = f"{text_id}_reduced.pt" if self.use_reduced_passage_vec else f"{text_id}.pt"
+        project_root = get_proje_root_path()
+        text_id = os.path.join(project_root, f"data/text_vector/{text_id}")
+        passage_vec = torch.load(text_id).float()
         time_since_base = self.get_time_since_base(index=index)
         time_in_a_day = self.get_time_in_a_day(index=index)
         time_since_pre_market_start = self.calculate_time_since_premarket_start(index=index)
         time_of_effect = self.get_time_for_effect_on_stock(index=index)
 
-        normalized_data = myDataset.normalize_time_data(time_since_base=time_since_base,
+        normalized_data = Mydataset.normalize_time_data(time_since_base=time_since_base,
                                                         time_in_a_day=time_in_a_day,
                                                         time_since_pre_market_start=time_since_pre_market_start)
         time_vec = torch.tensor(normalized_data)
@@ -66,7 +78,9 @@ class myDataset(Dataset):
 
         target_vec = self.get_target_vec(index=index)
 
-        return (passage_vec, time_vec, time_of_effect_normalized), target_vec
+        passage_vec = passage_vec.squeeze(0)
+
+        return (passage_vec.float(), time_vec, torch.tensor([time_of_effect_normalized])), target_vec.float()
 
     def get_target_vec(self, index: int) -> torch.tensor:
         news_data = self.sorted_news_data[index]
@@ -135,7 +149,7 @@ class myDataset(Dataset):
     def get_last_market_day(d):
         """ Get the last market day. If the given day is a market day, return it.
             Otherwise, return the last weekday before it. """
-        while not myDataset.is_weekday(d):
+        while not Mydataset.is_weekday(d):
             d -= timedelta(days=1)
         return d
 
@@ -152,10 +166,10 @@ class myDataset(Dataset):
         # Determine the start of the pre-market session
         if date_et.hour < 4:
             # Before the pre-market, find the last market day
-            last_market_day = myDataset.get_last_market_day(given_date_only - timedelta(days=1))
+            last_market_day = Mydataset.get_last_market_day(given_date_only - timedelta(days=1))
         else:
             # During or after the pre-market on the same day
-            last_market_day = myDataset.get_last_market_day(given_date_only)
+            last_market_day = Mydataset.get_last_market_day(given_date_only)
 
         # Set the pre-market start time
         pre_market_start_et = datetime(last_market_day.year, last_market_day.month,

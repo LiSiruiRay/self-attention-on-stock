@@ -3,9 +3,14 @@
 
 import unittest
 
-class MyTestCase(unittest.TestCase):
-    def test_something(self):
-        self.assertEqual(True, False)  # add assertion here
+from datatype.training_dataset import Mydataset
+
+
+class MyTestCaseMyDataset(unittest.TestCase):
+    def test_MyDataset(self):
+        md = Mydataset()
+        print(f"check the first: {md[0]}")
+
 
 if __name__ == '__main__':
     unittest.main()
