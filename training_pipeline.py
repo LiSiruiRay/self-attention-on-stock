@@ -113,7 +113,10 @@ def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
     for epoch in range(num_epochs):
         print(f'Epoch [{epoch + 1}/{num_epochs}]')
         if pbar is None:
-            pbar = tqdm(total=num_training_steps, ncols=0, desc="Train", unit=" step")
+            epoch_pbar = tqdm(total=num_training_steps, ncols=0, desc="Train", unit=" step")
+        else:
+            epoch_pbar = pbar
+            epoch_pbar.reset(total=num_training_steps)
 
         for step in range(num_training_steps):
             # Get data
@@ -133,11 +136,14 @@ def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
             optimizer.zero_grad()
 
             # Log
-            pbar.update()
-            pbar.set_postfix(
+            epoch_pbar.update()
+            epoch_pbar.set_postfix(
                 loss=f"{batch_loss:.2f}",
                 step=step + 1,
             )
+        if pbar is None:
+            epoch_pbar.close()
+    if pbar is not None:
         pbar.close()
 
     print("Training complete")
