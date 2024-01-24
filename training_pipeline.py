@@ -11,8 +11,8 @@ import random
 
 from torch import nn
 from torch.optim import Optimizer
-from torch.optim.lr_scheduler import LambdaLR
-from torch.utils.data import DataLoader, Subset
+from torch.optim.lr_scheduler import LambdaLR, LRScheduler
+from torch.utils.data import DataLoader, Subset, Dataset
 from tqdm import tqdm
 
 from util.common import get_proje_root_path, get_hash_id_dict
@@ -35,7 +35,7 @@ def set_seed(seed):
 # set_seed(87)
 
 
-def create_dataloaders(dataset, batch_size=32, shuffle_train=True):
+def create_dataloaders(dataset: Dataset, batch_size: int = 32, shuffle_train=True):
     total_size = len(dataset)
     train_size = int(0.9 * total_size)
     test_size = total_size - train_size
@@ -118,14 +118,17 @@ def model_fn(batch, model, criterion, device):
     return loss
 
 
-def train_model(model, train_loader, criterion, optimizer, scheduler, num_epochs, device, num_training_steps):
+def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
+                optimizer: Optimizer, scheduler: LRScheduler, num_epochs: int, device: torch.device,
+                num_training_steps: int, pbar: tqdm = None):
     # pbar2 = tqdm(total=num_epochs, ncols=0, desc="Train", unit="epoch")
     model.to(device)
     train_iterator = iter(train_loader)
 
     for epoch in range(num_epochs):
         print(f'Epoch [{epoch + 1}/{num_epochs}]')
-        pbar = tqdm(total=num_training_steps, ncols=0, desc="Train", unit=" step")
+        if pbar is None:
+            pbar = tqdm(total=num_training_steps, ncols=0, desc="Train", unit=" step")
 
         for step in range(num_training_steps):
             # Get data

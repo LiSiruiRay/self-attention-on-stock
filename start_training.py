@@ -47,18 +47,17 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=100, num_training_steps=num_training_steps)
 print(f"[Info]: Finish creating model!", flush=True)
 
-train_model(model,
-            train_loader,
-            criterion,
-            optimizer,
-            scheduler,
-            num_epochs,
-            device,
+train_model(model=model,
+            train_loader=train_loader,
+            criterion=criterion,
+            optimizer=optimizer,
+            scheduler=scheduler,
+            num_epochs=num_epochs,
+            device=device,
             num_training_steps=num_training_steps,)
 valid(model=model, dataloader=test_loader, criterion=criterion, device=device)
 
-description = "test"
-current_timestamp_millis = int(time.time() * 1000)
+description = "local run"
 
 now_time_str = get_now_time_with_time_zone()
 
