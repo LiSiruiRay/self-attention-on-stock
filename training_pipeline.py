@@ -28,12 +28,6 @@ def set_seed(seed):
         # MPS-specific seed settings can be added here if available
         pass
 
-    # torch.backends.cudnn.benchmark = False
-    # torch.backends.cudnn.deterministic = True
-
-
-# set_seed(87)
-
 
 def create_dataloaders(dataset: Dataset, batch_size: int = 32, shuffle_train=True):
     total_size = len(dataset)
@@ -105,15 +99,7 @@ def model_fn(batch, model, criterion, device):
 
     outs = model(input_data[0], input_data[1], input_data[2])
 
-    # print(f"checking outs : {outs}, shape: {outs.shape}")
-    # print(f"checking label: {labels}, shape: {labels.shape}")
-
     loss = criterion(outs, labels)
-
-    # Get the speaker id with highest probability.
-    # preds = outs.argmax(1)
-    # # Compute accuracy.
-    # accuracy = torch.mean((preds == labels).float())
 
     return loss
 
@@ -121,7 +107,6 @@ def model_fn(batch, model, criterion, device):
 def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
                 optimizer: Optimizer, scheduler: LRScheduler, num_epochs: int, device: torch.device,
                 num_training_steps: int, pbar: tqdm = None):
-    # pbar2 = tqdm(total=num_epochs, ncols=0, desc="Train", unit="epoch")
     model.to(device)
     train_iterator = iter(train_loader)
 
@@ -140,7 +125,6 @@ def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
 
             loss = model_fn(batch, model, criterion, device)
             batch_loss = loss.item()
-            # batch_accuracy = accuracy.item()
 
             # Updata model
             loss.backward()
@@ -152,40 +136,11 @@ def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
             pbar.update()
             pbar.set_postfix(
                 loss=f"{batch_loss:.2f}",
-                # accuracy=f"{batch_accuracy:.2f}",
                 step=step + 1,
             )
         pbar.close()
-        # pbar.close()
-        #
-        # model.train()
-        # total_loss = 0
-        # for inputs, targets in train_loader:
-        #     inputs = [input.float().to(device) for input in inputs]  # Convert inputs to float32
-        #     targets = targets.float().to(device)
-        #
-        #     # Forward pass
-        #     outputs = model(*inputs)
-        #     loss = criterion(outputs, targets)
-        #
-        #     # Backward and optimize
-        #     optimizer.zero_grad()
-        #     loss.backward()
-        #     optimizer.step()
-        #     scheduler.step()
-        #
-        #     total_loss += loss.item()
-        # pbar.update()
-        # pbar.set_postfix(
-        #     loss=f"{total_loss:.2f}",
-        #     # accuracy=f"{batch_accuracy:.2f}",
-        #     step=epoch + 1,
-        # )
-
-        # print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {total_loss / len(train_loader):.4f}')
 
     print("Training complete")
-    # pbar2.close()
 
 
 def validate_model(model, valid_loader, criterion, device):
@@ -235,12 +190,14 @@ def valid(dataloader, model, criterion, device):
 
 
 class StockPredictionModel(nn.Module):
-    def __init__(self, passage_vec_size, time_features, d_model, output_size):
+    def __init__(self, passage_vec_size, time_features, d_model, output_size,
+                 nhead: int = 4, transformer_encoder_layer_num: int = 2):
         super(StockPredictionModel, self).__init__()
         # Define layers
         self.linear1 = nn.Linear(passage_vec_size + time_features + 1, d_model)
-        self.transformer_encoder_layer = nn.TransformerEncoderLayer(d_model=d_model, nhead=4)
-        self.transformer_encoder = nn.TransformerEncoder(self.transformer_encoder_layer, num_layers=2)
+        self.transformer_encoder_layer = nn.TransformerEncoderLayer(d_model=d_model, nhead=nhead)
+        self.transformer_encoder = nn.TransformerEncoder(self.transformer_encoder_layer,
+                                                         num_layers=transformer_encoder_layer_num)
         self.linear2 = nn.Linear(d_model, output_size)
 
     def forward(self, passage_vec, time_vec, time_of_effect):
