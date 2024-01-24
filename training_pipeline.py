@@ -1,7 +1,9 @@
 # Author: ray
 # Date: 1/22/24
 # Description:
+import json
 import math
+import os
 
 import numpy as np
 import torch
@@ -12,6 +14,8 @@ from torch.optim import Optimizer
 from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.data import DataLoader, Subset
 from tqdm import tqdm
+
+from util.common import get_proje_root_path, get_hash_id_dict
 
 
 def set_seed(seed):
@@ -253,3 +257,20 @@ class StockPredictionModel(nn.Module):
         x = x.squeeze(0)  # Remove the batch dimension
         output = self.linear2(x)
         return output
+
+
+def save_model(model: nn.Module, info: dict):
+    project_root = get_proje_root_path()
+    model_folder_path = os.path.join(project_root, "model")
+    meta_data_path = os.path.join(model_folder_path, "meta_data/")
+    model_id = get_hash_id_dict(data_dict=info)
+    info["model_id"] = model_id
+
+    model_path = os.path.join(model_folder_path, f"{model_id}.pth")
+
+    meta_data_file_path = os.path.join(meta_data_path, f"{model_id}.json")
+
+    with open(file=meta_data_file_path) as file:
+        json.dump(info, file, indent=4)
+
+    torch.save(model.state_dict(), model_path)

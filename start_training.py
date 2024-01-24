@@ -8,7 +8,8 @@ from torch import nn
 
 from datatype.training_dataset import Mydataset
 from training_pipeline import StockPredictionModel, train_model, validate_model, create_dataloaders, \
-    get_cosine_schedule_with_warmup, valid
+    get_cosine_schedule_with_warmup, valid, save_model
+from util.common import get_now_time_with_time_zone
 
 device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 
@@ -16,7 +17,7 @@ print(f"[Info]: Use {device} now!")
 
 use_reduced_passage_vec = False
 
-num_epochs = 10  # Set the number of epochs
+num_epochs = 3  # Set the number of epochs
 
 time_features = 3
 
@@ -25,6 +26,10 @@ output_size = 6
 
 d_model = 1024
 
+num_training_steps = 1000
+
+batch_size = 1000
+
 model = StockPredictionModel(passage_vec_size=passage_vec_size,
                              time_features=time_features,
                              d_model=d_model,
@@ -32,24 +37,46 @@ model = StockPredictionModel(passage_vec_size=passage_vec_size,
 
 model = model.to(device).float()
 
-
 mds = Mydataset(use_reduced_passage_vec=use_reduced_passage_vec)
 
-train_loader, test_loader = create_dataloaders(dataset=mds)
+train_loader, test_loader = create_dataloaders(dataset=mds,
+                                               batch_size=batch_size)
 
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=1000, num_training_steps=70000)
+scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=1000, num_training_steps=num_training_steps)
 print(f"[Info]: Finish creating model!", flush=True)
 
-train_model(model, train_loader, criterion, optimizer, scheduler, num_epochs, device, 70000)
+train_model(model,
+            train_loader,
+            criterion,
+            optimizer,
+            scheduler,
+            num_epochs,
+            device,
+            num_training_steps=num_training_steps,)
 valid(model=model, dataloader=test_loader, criterion=criterion, device=device)
 
 description = "changedsteps"
 current_timestamp_millis = int(time.time() * 1000)
 
-model_id = f"{passage_vec_size}_{num_epochs}_{d_model}_{description}_{current_timestamp_millis}_reducedPassageVec" \
-    if use_reduced_passage_vec \
-    else f"{passage_vec_size}_{num_epochs}_{d_model}_{description}_{current_timestamp_millis}_fullPassageVec"
+now_time_str = get_now_time_with_time_zone()
 
-torch.save(model.state_dict(), f'model_{model_id}.pth')
+model_info = {
+    "passage vector size": passage_vec_size,
+    "num of epochs": num_epochs,
+    "d_model": d_model,
+    "description": description,
+    "time started training": now_time_str,
+    "training step num": num_training_steps,
+    "batch size": batch_size,
+}
+
+save_model(model=model,
+           info=model_info)
+
+# model_id = f"{passage_vec_size}_{num_epochs}_{d_model}_{description}_{current_timestamp_millis}_reducedPassageVec" \
+#     if use_reduced_passage_vec \
+#     else f"{passage_vec_size}_{num_epochs}_{d_model}_{description}_{current_timestamp_millis}_fullPassageVec"
+#
+# torch.save(model.state_dict(), f'model_{model_id}.pth')

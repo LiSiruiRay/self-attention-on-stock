@@ -4,10 +4,31 @@
 
 import hashlib
 import os
+from datetime import datetime
 
+import pytz
 import torch
 from sklearn.decomposition import PCA
 import json
+
+from config import DATE_FORMAT_TIMEZONE
+
+
+def get_now_time_with_time_zone():
+    now = datetime.now(pytz.utc)
+    now_str = now.strftime(DATE_FORMAT_TIMEZONE)
+    return now_str
+
+
+def get_hash_id_dict(data_dict: dict):
+    # Serialize the dictionary into JSON format
+    # Ensure the keys are sorted to maintain consistency
+    serialized_data = json.dumps(data_dict, sort_keys=True)
+
+    # Generate a hash of the serialized data
+    hash_id = hashlib.sha256(serialized_data.encode()).hexdigest()
+
+    return hash_id
 
 
 def text_to_md5_hash(text: str):
@@ -42,6 +63,7 @@ def get_proje_root_path() -> str:
     # get the path of the resource directory relative to the current script
     proje_root_path = os.path.join(current_script_directory, '../')
     return proje_root_path
+
 
 # Example usage
 text = "Your text here"
