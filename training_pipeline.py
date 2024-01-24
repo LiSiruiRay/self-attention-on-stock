@@ -270,7 +270,7 @@ def save_model(model: nn.Module, info: dict):
 
     meta_data_file_path = os.path.join(meta_data_path, f"{model_id}.json")
 
-    with open(file=meta_data_file_path) as file:
+    with open(meta_data_file_path, 'w') as file:
         json.dump(info, file, indent=4)
 
     torch.save(model.state_dict(), model_path)

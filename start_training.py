@@ -15,9 +15,9 @@ device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 
 print(f"[Info]: Use {device} now!")
 
-use_reduced_passage_vec = False
+use_reduced_passage_vec = True
 
-num_epochs = 3  # Set the number of epochs
+num_epochs = 500  # Set the number of epochs
 
 time_features = 3
 
@@ -26,9 +26,9 @@ output_size = 6
 
 d_model = 1024
 
-num_training_steps = 1000
+num_training_steps = 100
 
-batch_size = 1000
+batch_size = 50
 
 model = StockPredictionModel(passage_vec_size=passage_vec_size,
                              time_features=time_features,
@@ -44,7 +44,7 @@ train_loader, test_loader = create_dataloaders(dataset=mds,
 
 criterion = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=1000, num_training_steps=num_training_steps)
+scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=100, num_training_steps=num_training_steps)
 print(f"[Info]: Finish creating model!", flush=True)
 
 train_model(model,
@@ -57,7 +57,7 @@ train_model(model,
             num_training_steps=num_training_steps,)
 valid(model=model, dataloader=test_loader, criterion=criterion, device=device)
 
-description = "changedsteps"
+description = "test"
 current_timestamp_millis = int(time.time() * 1000)
 
 now_time_str = get_now_time_with_time_zone()

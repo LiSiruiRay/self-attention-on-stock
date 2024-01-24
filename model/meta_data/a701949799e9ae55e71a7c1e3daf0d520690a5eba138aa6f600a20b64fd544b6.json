@@ -1,0 +1,10 @@
+{
+    "passage vector size": 768,
+    "num of epochs": 10,
+    "d_model": 1024,
+    "description": "test",
+    "time started training": "2024-01-24 12:00:29 UTC+0000",
+    "training step num": 5,
+    "batch size": 10,
+    "model_id": "a701949799e9ae55e71a7c1e3daf0d520690a5eba138aa6f600a20b64fd544b6"
+}
