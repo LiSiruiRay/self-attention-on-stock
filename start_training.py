@@ -22,7 +22,9 @@ def start_training_process(seed: int = 78,
                            nhead: int = 8,
                            transformer_encoder_layer_num: int = 20,
                            device=torch.device("mps"),
-                           check_point_steps=-1
+                           check_point_steps=-1,
+                           training_machine: str = "M1 Pro 16G",
+                           description: str = "local run",
                            ):
     set_seed(seed=seed)
 
@@ -67,11 +69,7 @@ def start_training_process(seed: int = 78,
     training_duration = training_end_time - training_start_time
     training_duration = training_duration / 60
 
-    description = "local run"
-
     now_time_str = get_now_time_with_time_zone()
-
-    training_machine = "M1 Pro 16G"
 
     model_info = {
         "passage vector size": passage_vec_size,
