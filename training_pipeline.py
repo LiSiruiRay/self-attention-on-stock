@@ -107,10 +107,13 @@ def model_fn(batch, model, criterion, device):
 def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
                 optimizer: Optimizer, scheduler: LRScheduler, num_epochs: int, device: torch.device,
                 num_training_steps: int, pbar: tqdm = None, check_point_steps: int = -1):
-    training_id = get_now_time_with_time_zone()  # timestamp as training id
+    training_id = get_now_time_with_time_zone().replace(':', '@').replace(' ', '-')  # timestamp as training id
     proje_root_path = get_proje_root_path()
     random_number = random.randint(1, 100)  # if running multiple at the same time
-    check_point_path = os.path.join(proje_root_path, f"model/check_points/{training_id}_{random_number}")
+    check_point_path = os.path.join(proje_root_path, f"model/check_points/{training_id}_{random_number}/")
+
+    if not os.path.exists(check_point_path):
+        os.makedirs(check_point_path)
 
     check_point_steps = num_training_steps if check_point_steps == -1 else check_point_steps
 
@@ -148,15 +151,16 @@ def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
                 loss=f"{batch_loss:.2f}",
                 step=step + 1,
             )
-            if (step + 1) * epoch % check_point_steps == 0:
+            if (step + 1) * (epoch + 1) % check_point_steps == 0:
+                checkpoint_file_path = os.path.join(check_point_path, f'checkpoint_epoch_{epoch+1}_step_{step+1}.pth')
                 torch.save({
                     'epoch': epoch + 1,
                     'model_state_dict': model.state_dict(),
                     'optimizer_state_dict': optimizer.state_dict(),
                     'scheduler_state_dict': scheduler.state_dict(),
                     'loss': batch_loss,
-                }, check_point_path)
-                print(f"model check point saved")
+                }, checkpoint_file_path)
+                print(f"\nmodel check point saved")
         if pbar is None:
             epoch_pbar.close()
     if pbar is not None:
