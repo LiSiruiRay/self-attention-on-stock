@@ -21,7 +21,8 @@ def start_training_process(seed: int = 78,
                            batch_size: int = 500,
                            nhead: int = 8,
                            transformer_encoder_layer_num: int = 20,
-                           device = torch.device("mps")
+                           device=torch.device("mps"),
+                           check_point_steps=-1
                            ):
     set_seed(seed=seed)
 
@@ -59,7 +60,8 @@ def start_training_process(seed: int = 78,
                 scheduler=scheduler,
                 num_epochs=num_epochs,
                 device=device,
-                num_training_steps=num_training_steps, )
+                num_training_steps=num_training_steps,
+                check_point_steps=check_point_steps)
     valid(model=model, dataloader=test_loader, criterion=criterion, device=device)
     training_end_time = time.time()
     training_duration = training_end_time - training_start_time
