@@ -15,7 +15,7 @@ from torch.optim.lr_scheduler import LambdaLR, LRScheduler
 from torch.utils.data import DataLoader, Subset, Dataset
 from tqdm import tqdm
 
-from util.common import get_proje_root_path, get_hash_id_dict
+from util.common import get_proje_root_path, get_hash_id_dict, get_now_time_with_time_zone
 
 
 def set_seed(seed):
@@ -106,7 +106,14 @@ def model_fn(batch, model, criterion, device):
 
 def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
                 optimizer: Optimizer, scheduler: LRScheduler, num_epochs: int, device: torch.device,
-                num_training_steps: int, pbar: tqdm = None):
+                num_training_steps: int, pbar: tqdm = None, check_point_steps: int = -1):
+    training_id = get_now_time_with_time_zone()  # timestamp as training id
+    proje_root_path = get_proje_root_path()
+    random_number = random.randint(1, 100)  # if running multiple at the same time
+    check_point_path = os.path.join(proje_root_path, f"model/check_points/{training_id}_{random_number}")
+
+    check_point_steps = num_training_steps if check_point_steps == -1 else check_point_steps
+
     model.to(device)
     train_iterator = iter(train_loader)
 
@@ -141,6 +148,15 @@ def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
                 loss=f"{batch_loss:.2f}",
                 step=step + 1,
             )
+            if (step + 1) * epoch % check_point_steps == 0:
+                torch.save({
+                    'epoch': epoch + 1,
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'scheduler_state_dict': scheduler.state_dict(),
+                    'loss': batch_loss,
+                }, check_point_path)
+                print(f"model check point saved")
         if pbar is None:
             epoch_pbar.close()
     if pbar is not None:
