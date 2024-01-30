@@ -8,6 +8,7 @@ import os
 import numpy as np
 import torch
 import random
+import matplotlib.pyplot as plt
 
 from torch import nn
 from torch.optim import Optimizer
@@ -106,7 +107,7 @@ def model_fn(batch, model, criterion, device):
 
 def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
                 optimizer: Optimizer, scheduler: LRScheduler, num_epochs: int, device: torch.device,
-                num_training_steps: int, pbar: tqdm = None, check_point_steps: int = -1):
+                num_training_steps: int, pbar: tqdm = None, check_point_steps: int = -1) -> list:
     training_id = get_now_time_with_time_zone().replace(':', '@').replace(' ', '-')  # timestamp as training id
     proje_root_path = get_proje_root_path()
     random_number = random.randint(1, 100)  # if running multiple at the same time
@@ -119,8 +120,10 @@ def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
 
     model.to(device)
     train_iterator = iter(train_loader)
+    losses = []
 
     for epoch in range(num_epochs):
+        epoch_loss = []
         print(f'Epoch [{epoch + 1}/{num_epochs}]')
         if pbar is None:
             epoch_pbar = tqdm(total=num_training_steps, ncols=0, desc="Train", unit=" step")
@@ -138,6 +141,7 @@ def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
 
             loss = model_fn(batch, model, criterion, device)
             batch_loss = loss.item()
+            epoch_loss.append(batch_loss)
 
             # Updata model
             loss.backward()
@@ -163,10 +167,12 @@ def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
                 print(f"\nmodel check point saved")
         if pbar is None:
             epoch_pbar.close()
+        losses.append(epoch_loss)
     if pbar is not None:
         pbar.close()
 
     print("Training complete")
+    return losses
 
 
 def validate_model(model, valid_loader, criterion, device):
@@ -260,3 +266,25 @@ def save_model(model: nn.Module, info: dict):
         json.dump(info, file, indent=4)
 
     torch.save(model.state_dict(), model_path)
+
+
+def visualization(losses: list, model_id: str, epoch_index: int):
+    project_root = get_proje_root_path()
+    model_folder_path = os.path.join(project_root, "model")
+    visualization_folder_path = os.path.join(model_folder_path, f"visual/{model_id}")
+    
+    if not os.path.exists(visualization_folder_path):
+        os.makedirs(visualization_folder_path, exist_ok=True)
+    
+    curr_model_visual_path = os.path.join(visualization_folder_path, f"{model_id}_{epoch_index}.png")
+    
+    plt.figure(figsize=(10, 6))  # Optional: Specify figure size
+    # print(f"checking list in saving: {losses}")
+    plt.plot(losses, marker='o', linestyle='-', color='b')
+    plt.xlabel('Step')
+    plt.ylabel('Loss')
+    plt.title('Training Loss Over Time')
+    # plt.legend()
+    plt.grid(True)
+    plt.savefig(curr_model_visual_path)  # Save the plot as a PNG file
+    plt.close()  # Close the plot to free up memory

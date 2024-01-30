@@ -21,8 +21,7 @@ def get_passage_vector(text: str):
         outputs = model(**inputs)
 
     # The last_hidden_states are the word vectors for each token
-    last_hidden_states = outputs.last_hidden_state
-
+    # last_hidden_states = outputs.last_hidden_state
     # print(f"last_hidden_states: {last_hidden_states}")
 
     last_hidden_states = outputs.last_hidden_state

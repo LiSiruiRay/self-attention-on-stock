@@ -1,0 +1,15 @@
+{
+    "passage vector size": 768,
+    "num of epochs": 1,
+    "d_model": 1024,
+    "description": "local run",
+    "time started training": "2024-01-29 23:16:34 UTC+0000",
+    "training step num": 100,
+    "batch size": 5,
+    "seed": 78,
+    "nhead": 2,
+    "transformer encoder layer num": 1,
+    "training time (min)": 0.10709327061971029,
+    "training machine": "M1 Pro 16G",
+    "model_id": "9f94a403a0e8bc455292d7339112d02dba32a7ffbb032d1af0aee54c98a8c06d"
+}

@@ -8,9 +8,8 @@ from torch import nn
 
 from datatype.training_dataset import Mydataset
 from training_pipeline import StockPredictionModel, train_model, validate_model, create_dataloaders, \
-    get_cosine_schedule_with_warmup, valid, save_model, set_seed
-from util.common import get_now_time_with_time_zone
-
+    get_cosine_schedule_with_warmup, valid, save_model, set_seed, visualization
+from util.common import get_now_time_with_time_zone, get_hash_id_dict
 
 def start_training_process(seed: int = 78,
                            use_reduced_passage_vec: bool = False,
@@ -55,7 +54,7 @@ def start_training_process(seed: int = 78,
     print(f"[Info]: Finish creating model!", flush=True)
 
     training_start_time = time.time()
-    train_model(model=model,
+    losses = train_model(model=model,
                 train_loader=train_loader,
                 criterion=criterion,
                 optimizer=optimizer,
@@ -88,3 +87,8 @@ def start_training_process(seed: int = 78,
 
     save_model(model=model,
                info=model_info)
+    model_id = get_hash_id_dict(data_dict=model_info)
+    model_id = "test"
+    # print(f"check losses: {losses}")
+    for i, l in enumerate(losses):
+        visualization(losses = l, model_id=f"{model_id}", epoch_index=i)
