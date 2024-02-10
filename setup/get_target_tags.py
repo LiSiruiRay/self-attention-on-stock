@@ -37,7 +37,7 @@ def get_target_vector(time_str: str, detect_price: str = "4. close"):
         stock_price_curr = stock_data[time_str][detect_price]
         print(f"time str: {time_str}")
         print(f"result stock_price_next: {stock_price_next}, stock_price_curr: {stock_price_curr}")
-        change_rate = float((float(stock_price_next) - float(stock_price_curr)) / float(stock_price_curr)) * 100.0
+        change_rate = float((float(stock_price_next) - float(stock_price_curr)) / float(stock_price_curr)) * 1000.0
         vector.append(change_rate)
 
     return vector
