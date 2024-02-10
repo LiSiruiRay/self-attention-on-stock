@@ -25,6 +25,8 @@ def stored_sorted_keys(news_to_stock_valid_time):
     date_list.sort()
     return date_list
 
+#TODO: should be sorted based on when the news was happened, but this is also fine. Works for now.
+
 
 news_to_stock_valid_time = load_news_to_stock_valid_time()
 date_list = stored_sorted_keys(news_to_stock_valid_time)
@@ -46,20 +48,20 @@ for k, v in time_2_dict.items():
     for i in v:
         sorted_time_to_passage.append([k, i])
 
-print(len(sorted_time_to_passage) == len(news_to_stock_valid_time))
+# print(len(sorted_time_to_passage) == len(news_to_stock_valid_time))
 sorted_passage_2_time = [[v, k] for [k, v] in sorted_time_to_passage]
-print(sorted_passage_2_time)
+# print(sorted_passage_2_time)
 
 proje_root_path = get_proje_root_path()
 data_folder = os.path.join(proje_root_path, "data/")
-with open(os.path.join(data_folder, "date_list.json", 'w')) as f:
-    json.dump(date_list, f)
+with open(os.path.join(data_folder, "date_list.json"), 'w') as f:
+    json.dump(date_list, f, indent=4)
 
-with open(os.path.join(data_folder, "date_list.json", 'w')) as f:
-    json.dump(date_list, f)
+with open(os.path.join(data_folder, "time_2_dict.json"), 'w') as f:
+    json.dump(time_2_dict, f, indent=4)
 
-with open(os.path.join(data_folder, "date_list.json", 'w')) as f:
-    json.dump(date_list, f)
+with open(os.path.join(data_folder, "sorted_time_to_passage.json"), 'w') as f:
+    json.dump(sorted_time_to_passage, f, indent=4)
 
-with open(os.path.join(data_folder, "date_list.json", 'w')) as f:
-    json.dump(date_list, f)
+# with open(os.path.join(data_folder, "date_list.json", 'w')) as f:
+#     json.dump(date_list, f)
