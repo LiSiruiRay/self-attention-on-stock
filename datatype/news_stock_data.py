@@ -19,6 +19,16 @@ class NSData:
         project_path = get_proje_root_path()
         self.news_data_path = os.path.join(project_path, "data/news_data_valid_time_valid_range.json")
 
+    def save_data(self, sorted_time_list_path: str = "sorted_time_list.json",
+                  sorted_news_data_map_path: str = "sorted_news_data_map.json"):
+        project_path = get_proje_root_path()
+        with open(os.path.join(project_path, f"data/{sorted_time_list_path}"), 'w') as f:
+            json.dump(self.news_list, f, indent=4)
+
+        with open(os.path.join(project_path, f"data/{sorted_news_data_map_path}"), 'w') as f:
+            json.dump(self.news_data_map, f, indent=4)
+
+
     def load_data(self):
         news_data = {}
         time_tamp_to_news_data = {}
@@ -33,7 +43,7 @@ class NSData:
             time_tamp_to_news_data[each_date_str] = each
 
         sorted_keys = sorted(time_tamp_to_news_data, reverse=False)
-        self.news_list = sorted_keys # time
+        self.news_list = sorted_keys  # time
         sorted_news_data = OrderedDict()
         for i, k in enumerate(sorted_keys):
             sorted_news_data[k] = {"stock_data": time_tamp_to_news_data[k],
