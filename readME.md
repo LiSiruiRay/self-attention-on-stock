@@ -22,3 +22,5 @@ A vector of fluctuation (percentage) of
 
 if there is data dis continuity, I will just use the consecutive next ones.
 For example, I have data of 1th 19:55, the 5min will just be 2th first data.
+
+Design doc can be found under DesignDoc.md 
