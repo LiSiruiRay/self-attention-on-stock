@@ -25,10 +25,15 @@ with open(os.path.join(proje_root, f"data/sorted_keys_with_index.json"), 'w') as
 
 reversed_stock_data = []
 
-for i, (k, v) in enumerate(stock_data.items()):
-    curr_time = sorted_keys[i]
-    data_list = [k, v, {"index": i}]
+for i, j in enumerate(sorted_keys):
+    stock_price = stock_data[j]
+    data_list = [j, stock_price, {"index": i}]
     reversed_stock_data.append(data_list)
+
+# for i, (k, v) in enumerate(stock_data.items()):
+#     curr_time = sorted_keys[i]
+#     data_list = [k, v, {"index": i}]
+#     reversed_stock_data.append(data_list)
 
 with open(os.path.join(proje_root, f"data/stock_list.json"), 'w') as f:
     json.dump(reversed_stock_data, f, indent=4)
