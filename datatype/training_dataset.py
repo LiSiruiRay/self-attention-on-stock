@@ -57,6 +57,33 @@ class Mydataset(Dataset):
         self.news_to_target_tag_data = self.load_news_to_target_tag_data()
         self.use_reduced_passage_vec = use_reduced_passage_vec
 
+    def get_vector_data_from_text(self, text_data: str):
+        index = self.sorted_news_data.get_index_from_text_data(text_data)
+        text_id = text_to_md5_hash(text_data)
+        text_id = f"{text_id}_reduced.pt" if self.use_reduced_passage_vec else f"{text_id}.pt"
+        project_root = get_proje_root_path()
+        text_id = os.path.join(project_root, f"data/text_vector/{text_id}")
+        passage_vec = torch.load(text_id).float()
+        time_since_base = self.get_time_since_base(index=index)
+        time_in_a_day = self.get_time_in_a_day(index=index)
+        time_since_pre_market_start = self.calculate_time_since_premarket_start(index=index)
+        time_of_effect = self.get_time_for_effect_on_stock(index=index)
+
+        normalized_data = Mydataset.normalize_time_data(time_since_base=time_since_base,
+                                                        time_in_a_day=time_in_a_day,
+                                                        time_since_pre_market_start=time_since_pre_market_start)
+        time_vec = torch.tensor(normalized_data)
+        time_of_effect_normalized = time_of_effect / (48*60*60*1000)
+
+        target_vec = self.get_target_vec(index=index)
+
+        passage_vec = passage_vec.squeeze(0)
+
+        return (passage_vec.float(), time_vec, torch.tensor([time_of_effect_normalized])), target_vec.float()
+
+    def get_timestr_from_text_data(self, text_data: str):
+        return self.sorted_news_data.get_timestr_from_text_data(text_data=text_data)
+
     def __getitem__(self, index: int):
         news_data = self.sorted_news_data[index]
         text_data = news_data['data']
@@ -74,7 +101,7 @@ class Mydataset(Dataset):
                                                         time_in_a_day=time_in_a_day,
                                                         time_since_pre_market_start=time_since_pre_market_start)
         time_vec = torch.tensor(normalized_data)
-        time_of_effect_normalized = time_of_effect / (48*60*60*1000)
+        time_of_effect_normalized = time_of_effect / (48*60*60*1000) #normalize by 48h 
 
         target_vec = self.get_target_vec(index=index)
 

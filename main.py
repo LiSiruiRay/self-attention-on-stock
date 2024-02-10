@@ -14,4 +14,3 @@ if __name__ == '__main__':
                            transformer_encoder_layer_num=10,
                            num_epochs=15,
                            check_point_steps=2000)
-
