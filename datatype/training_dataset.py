@@ -45,7 +45,7 @@ class Mydataset(Dataset):
                  zero_time_stamp: datetime =
                  datetime(2023, 5, 1, 0, 0, 0, 0)
                  .replace(tzinfo=pytz.utc),
-                 use_reduced_passage_vec = True):
+                 use_reduced_passage_vec=True):
         """
         Only initialization needed
         :param zero_time_stamp:
@@ -73,7 +73,7 @@ class Mydataset(Dataset):
                                                         time_in_a_day=time_in_a_day,
                                                         time_since_pre_market_start=time_since_pre_market_start)
         time_vec = torch.tensor(normalized_data)
-        time_of_effect_normalized = time_of_effect / (48*60*60*1000)
+        time_of_effect_normalized = time_of_effect / (48 * 60 * 60 * 1000)
 
         target_vec = self.get_target_vec(index=index)
 
@@ -101,7 +101,7 @@ class Mydataset(Dataset):
                                                         time_in_a_day=time_in_a_day,
                                                         time_since_pre_market_start=time_since_pre_market_start)
         time_vec = torch.tensor(normalized_data)
-        time_of_effect_normalized = time_of_effect / (48*60*60*1000) #normalize by 48h 
+        time_of_effect_normalized = time_of_effect / (48 * 60 * 60 * 1000)  # normalize by 48h
 
         target_vec = self.get_target_vec(index=index)
 
