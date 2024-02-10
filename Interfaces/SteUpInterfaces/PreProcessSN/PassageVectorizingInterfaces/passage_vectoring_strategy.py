@@ -5,7 +5,7 @@ from typing import Any
 
 
 class PassageVectorizer:
-    def vectorize(self) -> Any:
+    def vectorize(self, text: str) -> Any:
         """
         This function vectorize a passage to a vector
 

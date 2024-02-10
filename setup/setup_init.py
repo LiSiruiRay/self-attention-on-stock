@@ -8,7 +8,7 @@ import pickle
 import torch
 
 from util.common import text_to_md5_hash, get_dim_reducer
-from vectorization.vectorization import get_passage_vector
+from PassageVectoringStrategies.bert_embedding_average_strategy import BERTEmbeddingAverageStrategy
 
 # Replace 'your_file.json' with your JSON file's name
 with open('../data/news_data.json', 'r') as file:
@@ -16,9 +16,10 @@ with open('../data/news_data.json', 'r') as file:
 
 embedding_list = []
 # print(f"len: {len(data)}")
+vectorizer = BERTEmbeddingAverageStrategy()
 for index, (i, each) in enumerate(data.items()):
     each_text = each['data']
-    vectorized_text = get_passage_vector(each_text)
+    vectorized_text = vectorizer.vectorize(text=each_text)
     embedding_list.append(vectorized_text)
     print(f"finished text_generating : {index}/{len(data)}")
 
