@@ -18,9 +18,13 @@
     
     Always use plaril
     
+    Always n. + v. (ing)
+    
+    e.g. passagevectorizing (not vectorize passage, not passage vectorization)
+    
 - Interrfaces/
     - SetUpInterfaces/
-        - set_up_data_strategy.py
+        - set_up_strategy.py
         - GetNews/
             - (not now)
         - GetStockData/
