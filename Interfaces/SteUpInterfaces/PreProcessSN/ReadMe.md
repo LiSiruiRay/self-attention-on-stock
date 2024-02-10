@@ -1,0 +1,1 @@
+SN stands for Stock and News
