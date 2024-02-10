@@ -10,7 +10,6 @@ import torch
 from util.common import text_to_md5_hash, get_dim_reducer
 from PassageVectoringStrategies.bert_embedding_average_strategy import BERTEmbeddingAverageStrategy
 
-# Replace 'your_file.json' with your JSON file's name
 with open('../data/news_data.json', 'r') as file:
     data = json.load(file)
 

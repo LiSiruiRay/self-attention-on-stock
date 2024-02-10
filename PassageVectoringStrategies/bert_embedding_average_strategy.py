@@ -5,7 +5,6 @@ from typing import Any
 
 from transformers import BertTokenizer, BertModel
 import torch
-import torch.nn.functional as F
 
 from Interfaces.SteUpInterfaces.PreProcessSN.PassageVectorizingInterfaces.passage_vectoring_strategy import \
     PassageVectorizer
