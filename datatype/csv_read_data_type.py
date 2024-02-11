@@ -23,11 +23,14 @@ class CSVDSOTR(Dataset):
 
     def __init__(self,  device, csv_file_path: str = "data/dataset.csv",
                  use_reduced_passage_vec: bool = False, lazy_load: bool = False):
+        print(f"reading once dataset initiation started, with dataset: {csv_file_path}")
         self.csv_file_path = csv_file_path
         self.use_reduced_passage_vec = use_reduced_passage_vec
         self.device = device
         if not lazy_load:
+            print(f"loading all the data at once...")
             self.load_data()
+            print(f"finished loading data")
 
     def load_data(self):
         self.df = pd.read_csv(os.path.join(get_proje_root_path(), self.csv_file_path))
