@@ -11,7 +11,50 @@ import pandas as pd
 from util.common import get_proje_root_path
 
 
-class CSVDS(Dataset):
+class CSVDSOTR(Dataset):
+    """
+    One time read = OTR
+    """
+    len: int
+    csv_file_path: str
+    df: pd.DataFrame
+    use_reduced_passage_vec: bool
+
+    def __init__(self, csv_file_path: str = "data/dataset.csv", use_reduced_passage_vec: bool = False):
+        self.csv_file_path = csv_file_path
+        self.use_reduced_passage_vec = use_reduced_passage_vec
+
+    def load_data(self):
+        self.df = pd.read_csv(os.path.join(get_proje_root_path(), self.csv_file_path))
+
+    def __len__(self):
+        return self.df.shape[0]
+
+    def __getitem__(self, idx):
+        curr_row = self.df.iloc[idx]
+        text_id = curr_row.iloc[1]
+        time_info = curr_row.iloc[2: 5]
+        effect_time = torch.tensor(curr_row.iloc[5])
+        target_vec = curr_row.iloc[6: 11]
+        project_root = get_proje_root_path()
+        if self.use_reduced_passage_vec:
+            text_id = os.path.join(project_root, f"data/text_vector/{text_id}_reduced.pt")
+        else:
+            text_id = os.path.join(project_root, f"data/text_vector/{text_id}.pt")
+        passage_vec = torch.load(text_id)
+
+        passage_vec = passage_vec.squeeze(0)
+
+        time_vec = torch.tensor(time_info)
+
+        time_vec[0] = time_vec[0] / 1e6
+        time_vec[1] = time_vec[1] / 1e4
+        time_vec[2] = time_vec[2] / 1e4
+
+        return (passage_vec.float(), time_vec, effect_time), torch.tensor(target_vec).float()
+
+
+class CSVDSChunk(Dataset):
     len: int
     csv_file_path: str
     chunk_size: int

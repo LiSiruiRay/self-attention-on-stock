@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 from config import DATE_FORMAT
 from datatype.news_stock_data import NSData
-from datatype.training_dataset import Mydataset
+from datatype.training_dataset import SPDS
 from util.common import text_to_md5_hash, get_proje_root_path
 import pytz
 
@@ -20,7 +20,7 @@ ns.load_data()
 
 ns.save_data()
 
-md = Mydataset()
+md = SPDS()
 
 for date, key in ns.news_data_map.items():
     stock_data = key["stock_data"]
@@ -103,10 +103,10 @@ def calculate_time_since_premarket_start(date_et: datetime):
     # Determine the start of the pre-market session
     if date_et.hour < 4:
         # Before the pre-market, find the last market day
-        last_market_day = Mydataset.get_last_market_day(given_date_only - timedelta(days=1))
+        last_market_day = SPDS.get_last_market_day(given_date_only - timedelta(days=1))
     else:
         # During or after the pre-market on the same day
-        last_market_day = Mydataset.get_last_market_day(given_date_only)
+        last_market_day = SPDS.get_last_market_day(given_date_only)
 
     # Set the pre-market start time
     pre_market_start_et = datetime(last_market_day.year, last_market_day.month,

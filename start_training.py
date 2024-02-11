@@ -6,10 +6,17 @@ import time
 import torch
 from torch import nn
 
-from datatype.training_dataset import Mydataset
+from datatype.csv_read_data_type import CSVDSOTR, CSVDSChunk
+from datatype.training_dataset import SPDS
 from training_pipeline import StockPredictionModel, train_model, validate_model, create_dataloaders, \
     get_cosine_schedule_with_warmup, valid, save_model, set_seed, visualization
 from util.common import get_now_time_with_time_zone, get_hash_id_dict
+
+data_dict = {
+    'CSV one time only': CSVDSOTR,
+    'CSV chunk read': CSVDSChunk,
+    'self proces ds': SPDS,
+}
 
 
 def start_training_process(seed: int = 78,
@@ -25,6 +32,8 @@ def start_training_process(seed: int = 78,
                            check_point_steps=-1,
                            training_machine: str = "M1 Pro 16G",
                            description: str = "local run",
+                           dataset: str = 'CSV one time only',
+                           dataset_path: str = "data/dataset.csv"
                            ):
     set_seed(seed=seed)
 
@@ -44,9 +53,15 @@ def start_training_process(seed: int = 78,
 
     model = model.to(device).float()
 
-    mds = Mydataset(use_reduced_passage_vec=use_reduced_passage_vec)
+    TrainingDS = data_dict[dataset]
 
-    train_loader, test_loader = create_dataloaders(dataset=mds,
+    if TrainingDS == CSVDSOTR:
+        ds = TrainingDS(csv_file_path=dataset_path,
+                        use_reduced_passage_vec=use_reduced_passage_vec)
+    else:
+        ds = TrainingDS(use_reduced_passage_vec=use_reduced_passage_vec)
+
+    train_loader, test_loader = create_dataloaders(dataset=ds,
                                                    batch_size=batch_size)
 
     criterion = nn.MSELoss()

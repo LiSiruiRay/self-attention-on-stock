@@ -6,7 +6,7 @@ import time
 import torch
 from torch import nn
 
-from datatype.training_dataset import Mydataset
+from datatype.training_dataset import SPDS
 from training_pipeline import StockPredictionModel, train_model, validate_model, create_dataloaders, \
     get_cosine_schedule_with_warmup, valid, save_model, set_seed, visualization
 from util.common import get_now_time_with_time_zone, get_hash_id_dict
@@ -43,7 +43,7 @@ def start_training_process(seed: int = 78,
 
     model = model.to(device).float()
 
-    mds = Mydataset(use_reduced_passage_vec=use_reduced_passage_vec)
+    mds = SPDS(use_reduced_passage_vec=use_reduced_passage_vec)
 
     train_loader, test_loader = create_dataloaders(dataset=mds,
                                                    batch_size=batch_size)
