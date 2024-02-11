@@ -127,7 +127,7 @@ def get_time_in_a_day(date: datetime) -> float:
 
 
 base_dt = datetime(2023, 5, 1, 0, 0, 0, 0).replace(tzinfo=pytz.utc)
-
+date_list = []
 for date, key in ns.news_data_map.items():
     if '.' in date.split('+')[0]:
         format_str = "%Y-%m-%dT%H:%M:%S.%f%z"
@@ -167,6 +167,9 @@ for date, key in ns.news_data_map.items():
         # copy_curr["time_effect"] = time_difference_sec / 1e5
         # copy_curr["target_vec"] = vector
         # copy_curr["detected_stock_time"] = sorted_stock_list[i][0]
+
+        date_list.append(date)
+
         pbar.update(1)
 
         # data_list.append(copy_curr)
@@ -189,12 +192,13 @@ with open(os.path.join(porje_root, "data/dataset.csv"), 'w', newline='') as file
     writer = csv.writer(file)
 
     # Write the header (optional)
-    writer.writerow(['text_id', 'time_v0',
+    writer.writerow(["date", 'text_id', 'time_v0',
                      'time_v1', 'time_v2',
                      'effect_time', "tar_0",
                      "tar_1", "tar_2", "tar_3",
                      "tar_4", "tar_5"])
-    for row in zip(text_id_list,
+    for row in zip(date_list,
+                   text_id_list,
                    time_info_list_1, time_info_list_2, time_info_list_3,
                    time_effect_list,
                    target_vector_list_0,
@@ -203,6 +207,8 @@ with open(os.path.join(porje_root, "data/dataset.csv"), 'w', newline='') as file
                    target_vector_list_3,
                    target_vector_list_4,
                    target_vector_list_5):
+        if row[11] is None:
+            continue
         writer.writerow(row)
 
 # with open(os.path.join(porje_root, "data/full_data.json"), 'w') as f:
