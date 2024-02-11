@@ -11,6 +11,7 @@ from training_pipeline import StockPredictionModel, train_model, validate_model,
     get_cosine_schedule_with_warmup, valid, save_model, set_seed, visualization
 from util.common import get_now_time_with_time_zone, get_hash_id_dict
 
+
 def start_training_process(seed: int = 78,
                            use_reduced_passage_vec: bool = False,
                            num_epochs: int = 10,
@@ -55,14 +56,14 @@ def start_training_process(seed: int = 78,
 
     training_start_time = time.time()
     losses = train_model(model=model,
-                train_loader=train_loader,
-                criterion=criterion,
-                optimizer=optimizer,
-                scheduler=scheduler,
-                num_epochs=num_epochs,
-                device=device,
-                num_training_steps=num_training_steps,
-                check_point_steps=check_point_steps)
+                         train_loader=train_loader,
+                         criterion=criterion,
+                         optimizer=optimizer,
+                         scheduler=scheduler,
+                         num_epochs=num_epochs,
+                         device=device,
+                         num_training_steps=num_training_steps,
+                         check_point_steps=check_point_steps)
     valid(model=model, dataloader=test_loader, criterion=criterion, device=device)
     training_end_time = time.time()
     training_duration = training_end_time - training_start_time
@@ -91,4 +92,4 @@ def start_training_process(seed: int = 78,
     model_id = "test"
     # print(f"check losses: {losses}")
     for i, l in enumerate(losses):
-        visualization(losses = l, model_id=f"{model_id}", epoch_index=i)
+        visualization(losses=l, model_id=f"{model_id}", epoch_index=i)
