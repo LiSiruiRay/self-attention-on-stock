@@ -6,3 +6,4 @@
 *.pth
 
 data/full_data.json
+data/dataset.csv
