@@ -67,6 +67,8 @@ def start_training_process(seed: int = 78,
     train_loader, test_loader = create_dataloaders(dataset=ds,
                                                    batch_size=batch_size)
 
+    print(f"[Info]: Finish creating the dataset")
+
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=1000, num_training_steps=num_training_steps)
@@ -107,7 +109,7 @@ def start_training_process(seed: int = 78,
     save_model(model=model,
                info=model_info)
     model_id = get_hash_id_dict(data_dict=model_info)
-    model_id = "test"
+    # model_id = "test"
     # print(f"check losses: {losses}")
     for i, l in enumerate(losses):
         visualization(losses=l, model_id=f"{model_id}", epoch_index=i)
