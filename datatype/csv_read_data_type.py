@@ -19,10 +19,15 @@ class CSVDSOTR(Dataset):
     csv_file_path: str
     df: pd.DataFrame
     use_reduced_passage_vec: bool
+    device: torch.device
 
-    def __init__(self, csv_file_path: str = "data/dataset.csv", use_reduced_passage_vec: bool = False):
+    def __init__(self,  device, csv_file_path: str = "data/dataset.csv",
+                 use_reduced_passage_vec: bool = False, lazy_load: bool = False):
         self.csv_file_path = csv_file_path
         self.use_reduced_passage_vec = use_reduced_passage_vec
+        self.device = device
+        if not lazy_load:
+            self.load_data()
 
     def load_data(self):
         self.df = pd.read_csv(os.path.join(get_proje_root_path(), self.csv_file_path))
@@ -34,8 +39,8 @@ class CSVDSOTR(Dataset):
         curr_row = self.df.iloc[idx]
         text_id = curr_row.iloc[1]
         time_info = curr_row.iloc[2: 5]
-        effect_time = torch.tensor(curr_row.iloc[5])
-        target_vec = curr_row.iloc[6: 11]
+        effect_time = torch.tensor([curr_row.iloc[5]], dtype=torch.float32).to(self.device)
+        target_vec = curr_row.iloc[6: 12]
         project_root = get_proje_root_path()
         if self.use_reduced_passage_vec:
             text_id = os.path.join(project_root, f"data/text_vector/{text_id}_reduced.pt")
@@ -45,13 +50,16 @@ class CSVDSOTR(Dataset):
 
         passage_vec = passage_vec.squeeze(0)
 
-        time_vec = torch.tensor(time_info)
+        time_vec = torch.tensor(time_info, dtype=torch.float32).to(self.device)
 
         time_vec[0] = time_vec[0] / 1e6
         time_vec[1] = time_vec[1] / 1e4
         time_vec[2] = time_vec[2] / 1e4
 
-        return (passage_vec.float(), time_vec, effect_time), torch.tensor(target_vec).float()
+        return ((passage_vec.float(),
+                time_vec,
+                effect_time),
+                torch.tensor(target_vec, dtype=torch.float32).to(self.device).float())
 
 
 class CSVDSChunk(Dataset):

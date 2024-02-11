@@ -28,7 +28,9 @@ def start_training_process(seed: int = 78,
                            batch_size: int = 500,
                            nhead: int = 8,
                            transformer_encoder_layer_num: int = 20,
-                           device=torch.device("mps"),
+                           device=torch.device("cuda" if torch.cuda.is_available()
+                                               else "mps" if torch.backends.mps.is_available()
+                                               else "cpu"),
                            check_point_steps=-1,
                            training_machine: str = "M1 Pro 16G",
                            description: str = "local run",
@@ -57,7 +59,8 @@ def start_training_process(seed: int = 78,
 
     if TrainingDS == CSVDSOTR:
         ds = TrainingDS(csv_file_path=dataset_path,
-                        use_reduced_passage_vec=use_reduced_passage_vec)
+                        use_reduced_passage_vec=use_reduced_passage_vec,
+                        device = device)
     else:
         ds = TrainingDS(use_reduced_passage_vec=use_reduced_passage_vec)
 
