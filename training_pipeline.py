@@ -143,6 +143,9 @@ def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
             batch_loss = loss.item()
             epoch_loss.append(batch_loss)
 
+            if step % 20 == 0:
+                print(f"step: {step} / {num_training_steps}, epoch: {epoch} / {num_epochs}")
+
             # Updata model
             loss.backward()
             optimizer.step()
@@ -155,7 +158,7 @@ def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
                 loss=f"{batch_loss:.2f}",
                 step=step + 1,
             )
-            if (step + 1) * (epoch + 1) % check_point_steps == 0:
+            if (step + 1) % check_point_steps == 0:
                 checkpoint_file_path = os.path.join(check_point_path, f'checkpoint_epoch_{epoch+1}_step_{step+1}.pth')
                 torch.save({
                     'epoch': epoch + 1,
