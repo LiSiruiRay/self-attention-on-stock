@@ -108,6 +108,53 @@ def model_fn(batch, model, criterion, device):
 def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
                 optimizer: Optimizer, scheduler: LRScheduler, num_epochs: int, device: torch.device,
                 num_training_steps: int, pbar: tqdm = None, check_point_steps: int = -1) -> list:
+    """
+    designed to train a neural network model using PyTorch. The function takes several parameters including the model
+    to be trained (model), a data loader for the training data (train_loader), a loss function (criterion),
+    an optimizer (optimizer), a learning rate scheduler (scheduler), the number of epochs to train for (num_epochs),
+    the device to use for training (device), the total number of training steps per epoch (num_training_steps),
+    an optional progress bar (pbar), and an optional parameter for checkpoint steps (check_point_steps). The function
+    aims to train the model by iterating over the dataset for a specified number of epochs and steps, updating the
+    model parameters using backpropagation and the optimizer at each step.
+
+    Here is a breakdown of key parts of the code:
+
+    Initialization and Checkpoint Directory: The function starts by generating a unique identifier for the training
+    session based on the current time and a random number. It then creates a directory for saving model checkpoints
+    if it doesn't already exist.
+
+    Model and Device Setup: The model is moved to the specified device (e.g., CPU or GPU).
+
+    Training Loop: The function enters a loop over the specified number of epochs. For each epoch, it initializes a
+    progress bar (if not provided) and iterates over the training steps. In each step, it:
+
+    Retrieves a batch of data from the train_loader. Computes the loss for the batch by calling a function model_fn,
+    which is presumably defined elsewhere and is responsible for forwarding the batch through the model,
+    computing the loss using criterion, and possibly other tasks related to the model's forward pass. Performs
+    backpropagation (loss.backward()) to compute gradients. Updates the model's parameters (optimizer.step()).
+    Updates the learning rate (scheduler.step()). Resets the gradients for the next iteration (optimizer.zero_grad(
+    )). Logging and Checkpoints: The function logs training progress and loss after every few steps. Additionally,
+    it saves model checkpoints at specified intervals (check_point_steps), including the model's state, optimizer's
+    state, scheduler's state, and the current loss.
+
+    Loss Recording: The function records the loss at each step and aggregates it per epoch, returning a list of epoch
+    losses after training is complete.
+
+    Args:
+        model:
+        train_loader:
+        criterion:
+        optimizer:
+        scheduler:
+        num_epochs:
+        device:
+        num_training_steps:
+        pbar:
+        check_point_steps:
+
+    Returns:
+
+    """
     training_id = get_now_time_with_time_zone().replace(':', '@').replace(' ', '-')  # timestamp as training id
     proje_root_path = get_proje_root_path()
     random_number = random.randint(1, 100)  # if running multiple at the same time
