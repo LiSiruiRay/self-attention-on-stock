@@ -107,7 +107,8 @@ def model_fn(batch, model, criterion, device):
 
 def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
                 optimizer: Optimizer, scheduler: LRScheduler, num_epochs: int, device: torch.device,
-                num_training_steps: int, pbar: tqdm = None, check_point_steps: int = -1) -> list:
+                num_training_steps: int, pbar: tqdm = None, check_point_steps: int = -1,
+                printing_interval: int = 20) -> list:
     """
     designed to train a neural network model using PyTorch. The function takes several parameters including the model
     to be trained (model), a data loader for the training data (train_loader), a loss function (criterion),
@@ -141,6 +142,7 @@ def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
     losses after training is complete.
 
     Args:
+        printing_interval:
         model:
         train_loader:
         criterion:
@@ -190,8 +192,10 @@ def train_model(model: nn.Module, train_loader: Dataset, criterion: nn.Module,
             batch_loss = loss.item()
             epoch_loss.append(batch_loss)
 
-            if step % 20 == 0:
+            if step % printing_interval == 0:
                 print(f"step: {step} / {num_training_steps}, epoch: {epoch} / {num_epochs}")
+                current_lr = optimizer.param_groups[0]['lr']
+                print(f"Current Learning Rate: {current_lr}")
 
             # Updata model
             loss.backward()
