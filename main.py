@@ -2,7 +2,7 @@
 from start_training import start_training_process
 if __name__ == '__main__':
     start_training_process(num_training_steps=1000,
-                           batch_size=100000,
+                           batch_size=10000,
                            nhead=4,
                            transformer_encoder_layer_num=5,
                            num_epochs=10,
