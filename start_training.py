@@ -30,13 +30,16 @@ def start_training_process(seed: int = 78,
                            transformer_encoder_layer_num: int = 20,
                            device=torch.device("cuda" if torch.cuda.is_available()
                                                else "mps" if torch.backends.mps.is_available()
-                                               else "cpu"),
+                           else "cpu"),
                            check_point_steps=-1,
                            training_machine: str = "M1 Pro 16G",
                            description: str = "local run",
                            dataset: str = 'CSV one time only',
-                           dataset_path: str = "data/dataset.csv"
+                           dataset_path: str = "data/dataset.csv",
+                           lr:int = 0.001
                            ):
+    now_time_str = get_now_time_with_time_zone()
+
     set_seed(seed=seed)
 
     # device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
@@ -55,12 +58,32 @@ def start_training_process(seed: int = 78,
 
     model = model.to(device).float()
 
+    model_meta_info = {
+        "passage vector size": passage_vec_size,
+        "num of epochs": num_epochs,
+        "d_model": d_model,
+        "description": description,
+        "time started training": now_time_str,
+        "training step num": num_training_steps,
+        "batch size": batch_size,
+        "seed": seed,
+        "nhead": nhead,
+        "transformer encoder layer num": transformer_encoder_layer_num,
+        "how much time spent on training already (min)": 0,
+        "training machine": training_machine,
+        "dataset": dataset,
+        "dataset_path": dataset_path,
+        "check_point_steps": check_point_steps,
+        "device": device,
+        "learning rate": lr,
+    }
+
     TrainingDS = data_dict[dataset]
 
     if TrainingDS == CSVDSOTR:
         ds = TrainingDS(csv_file_path=dataset_path,
                         use_reduced_passage_vec=use_reduced_passage_vec,
-                        device = device)
+                        device=device)
     else:
         ds = TrainingDS(use_reduced_passage_vec=use_reduced_passage_vec)
 
@@ -70,7 +93,7 @@ def start_training_process(seed: int = 78,
     print(f"[Info]: Finish creating the dataset")
 
     criterion = nn.MSELoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=1000, num_training_steps=num_training_steps)
     print(f"[Info]: Finish creating model!", flush=True)
 
@@ -88,8 +111,6 @@ def start_training_process(seed: int = 78,
     training_end_time = time.time()
     training_duration = training_end_time - training_start_time
     training_duration = training_duration / 60
-
-    now_time_str = get_now_time_with_time_zone()
 
     model_info = {
         "passage vector size": passage_vec_size,
